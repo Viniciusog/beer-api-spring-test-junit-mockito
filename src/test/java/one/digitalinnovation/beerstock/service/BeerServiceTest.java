@@ -1,5 +1,6 @@
 package one.digitalinnovation.beerstock.service;
 
+import com.sun.source.tree.ModuleTree;
 import one.digitalinnovation.beerstock.builder.BeerDTOBuilder;
 import one.digitalinnovation.beerstock.dto.BeerDTO;
 import one.digitalinnovation.beerstock.entity.Beer;
@@ -70,12 +71,27 @@ public class BeerServiceTest {
         assertThat(createdBeerDTO.getId(), is(equalTo(beerDTO.getId())));
         assertThat(createdBeerDTO.getName(), is(equalTo(beerDTO.getName())));
         assertThat(createdBeerDTO.getQuantity(), is(equalTo(beerDTO.getQuantity())));
-        
+
         assertThat(createdBeerDTO.getQuantity(), is(greaterThan(2)));
         assertTrue(createdBeerDTO.getQuantity() > 2);
 
         /*assertEquals(beerDTO.getId(), createdBeerDTO.getId());
         assertEquals(beerDTO.getName(), createdBeerDTO.getName());*/
+    }
+
+    @Test
+    void whenAlreadyRegisteredBeerInformedThenAnExceptionShouldBeThrown() throws BeerAlreadyRegisteredException {
+        //given
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer beer = beerMapper.toModel(beerDTO);
+
+        //when -> Configura para que, quando pesquisar por nome, retorne cerveja já existente
+        Mockito.when(beerRepository.findByName(beer.getName())).thenReturn(Optional.of(beer));
+
+        //then
+        //Valida se uma exceção de cerveja existente foi lançada quando tentou cadastrar uma cerveja já existente
+        assertThrows(BeerAlreadyRegisteredException.class, () ->   beerService.createBeer(beerDTO));
+
     }
 //
 //    @Test
