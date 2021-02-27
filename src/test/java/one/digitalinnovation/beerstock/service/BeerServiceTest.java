@@ -59,15 +59,23 @@ public class BeerServiceTest {
         //when
         //O 'when' determina qual método que esperamos ser chamado no futuro e com quais atributos
         //O 'thenReturn' diz qual será o valor retornado quando 'when' for chamado
+        //Configura o que deve ser feito quando parâmetros do 'when' acontecer
         Mockito.when(beerRepository.findByName(expectedSavedBeer.getName())).thenReturn(Optional.empty());
         Mockito.when(beerRepository.save(expectedSavedBeer)).thenReturn(expectedSavedBeer);
 
         //then
         BeerDTO createdBeerDTO = beerService.createBeer(beerDTO);
 
-        assertEquals(beerDTO.getId(), createdBeerDTO.getId());
-        assertEquals(beerDTO.getName(), createdBeerDTO.getName());
+        //Validando os dados de cerveja.
+        assertThat(createdBeerDTO.getId(), is(equalTo(beerDTO.getId())));
+        assertThat(createdBeerDTO.getName(), is(equalTo(beerDTO.getName())));
+        assertThat(createdBeerDTO.getQuantity(), is(equalTo(beerDTO.getQuantity())));
+        
+        assertThat(createdBeerDTO.getQuantity(), is(greaterThan(2)));
+        assertTrue(createdBeerDTO.getQuantity() > 2);
 
+        /*assertEquals(beerDTO.getId(), createdBeerDTO.getId());
+        assertEquals(beerDTO.getName(), createdBeerDTO.getName());*/
     }
 //
 //    @Test
