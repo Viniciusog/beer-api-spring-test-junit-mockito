@@ -186,8 +186,59 @@ public class BeerServiceTest {
         assertThrows(BeerNotFoundException.class, () -> beerService.deleteById(beer.getId()));
     }
 
+    @Test
+    void whenIncrementIsCalledThenIncrementBeerStock() throws BeerNotFoundException, BeerStockExceededException {
+        BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer expectedBeer = beerMapper.toModel(expectedBeerDTO);
 
-//
+        //when
+        when(beerRepository.findById(expectedBeerDTO.getId())).thenReturn(Optional.of(expectedBeer));
+        when(beerRepository.save(expectedBeer)).thenReturn(expectedBeer);
+
+
+        int quantityToIncrement = 10;
+        int expectedQuantityAfterIncrement = expectedBeerDTO.getQuantity() + quantityToIncrement;
+
+        //then
+        BeerDTO incrementedBeerDTO = beerService.increment(expectedBeerDTO.getId(), quantityToIncrement);
+
+        assertThat(expectedQuantityAfterIncrement, equalTo(incrementedBeerDTO.getQuantity()));
+        assertThat(expectedQuantityAfterIncrement, greaterThan(0));
+    }
+
+    //Quantidade existente + quantidade para adicionar <= Quantidade Máxima
+    @Test
+    void whenIncrementIsGreaterThanMaxThenThrowException() {
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer beer = beerMapper.toModel(beerDTO);
+
+        //when -> verifyIfExists() em BeerService
+        when(beerRepository.findById(beer.getId())).thenReturn(Optional.of(beer));
+
+        //then
+        int quantityToIncrement = 80;
+        assertThrows(BeerStockExceededException.class, () -> beerService.increment(beerDTO.getId(),
+                quantityToIncrement));
+
+    }
+
+    //Quantidade existente + quantidade para adicionar <= Quantidade Máxima
+    @Test
+    void whenIncrementAfterSumIsGreaterThanMaxThenThrowException() {
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer beer = beerMapper.toModel(beerDTO);
+
+        //when
+        when(beerRepository.findById(beer.getId())).thenReturn(Optional.of(beer));
+
+        int quantityToIncrement = 45;
+
+        assertThrows(BeerStockExceededException.class,
+                () -> beerService.increment(beer.getId(), quantityToIncrement));
+
+    }
+
+
 //    @Test
 //    void whenDecrementIsCalledThenDecrementBeerStock() throws BeerNotFoundException, BeerStockExceededException {
 //        BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
