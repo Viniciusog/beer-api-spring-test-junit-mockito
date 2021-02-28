@@ -21,6 +21,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 
 import javax.swing.text.html.Option;
+import java.util.Collections;
 import java.util.Optional;
 
 import static one.digitalinnovation.beerstock.utils.JsonConvertionUtils.asJsonString;
@@ -55,7 +56,6 @@ public class BeerControllerTest {
                 //Adiciona suporte a objetos paginados
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .setViewResolvers((s, locale) -> new MappingJackson2JsonView()).build();
-
     }
 
     //Teste de inserção com POST
@@ -91,7 +91,6 @@ public class BeerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(beerDTO)))
                 .andExpect(status().isBadRequest());
-
     }
 
 
@@ -124,6 +123,40 @@ public class BeerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void whenGETListWithBeersIsCalledThenOkStatusIsReturned() throws Exception {
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+
+        Mockito.when(beerService.listAll()).thenReturn(Collections.singletonList(beerDTO));
+
+        //then
+        mockMvc.perform(get(BEER_API_URL_PATH)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                //Pega os dados do primeiro item da lista por padrão
+                .andExpect(jsonPath("$[0].name", is(beerDTO.getName())))
+                .andExpect(jsonPath("$[0].type", is(beerDTO.getType().toString())))
+                .andExpect(jsonPath("$[0].brand", is(beerDTO.getBrand())));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //    @Test
 //    void whenPATCHIsCalledToIncrementGreatherThanMaxThenBadRequestStatusIsReturned() throws Exception {

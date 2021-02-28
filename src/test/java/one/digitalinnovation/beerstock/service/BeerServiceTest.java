@@ -114,7 +114,7 @@ public class BeerServiceTest {
     //Teste para validar se a exceção BeerNotFound é mostrada quando o nome de uma
     //cerveja não está cadastrado
     @Test
-    void whenSearchedBeerNameDoesNotExistThenAExceptionShouldBeThrown() {
+    void whenSearchedBeerNameDoesNotExistThenAnExceptionShouldBeThrown() {
         BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
         Beer beer = beerMapper.toModel(beerDTO);
 
@@ -123,6 +123,36 @@ public class BeerServiceTest {
 
         //then
         assertThrows(BeerNotFoundException.class, () -> beerService.findByName(beer.getName()));
+    }
+
+
+    @Test
+    void whenListBeerIsCalledThenReturnListOfBeers() {
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer beer = beerMapper.toModel(beerDTO);
+
+        //when
+        when(beerRepository.findAll()).thenReturn(Collections.singletonList(beer));
+
+        //then
+        List<BeerDTO> foundBeers = beerService.listAll();
+
+        assertTrue(foundBeers.size() > 0);
+        assertThat(foundBeers, is(not(empty())));
+        assertThat(beerDTO, is(equalTo(foundBeers.get(0))));
+
+    }
+
+    @Test
+    void whenListBeerIsCalledThenReturnEmptyListOfBeers() {
+        //when
+        when(beerRepository.findAll()).thenReturn(Collections.emptyList());
+
+        //then
+        List<BeerDTO> foundBeers = beerService.listAll();
+
+        assertThat(foundBeers, is(empty()));
+        assertTrue(foundBeers.size() == 0);
     }
 
 
