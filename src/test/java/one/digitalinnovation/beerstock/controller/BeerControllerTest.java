@@ -3,6 +3,7 @@ package one.digitalinnovation.beerstock.controller;
 import one.digitalinnovation.beerstock.builder.BeerDTOBuilder;
 import one.digitalinnovation.beerstock.dto.BeerDTO;
 import one.digitalinnovation.beerstock.dto.QuantityDTO;
+import one.digitalinnovation.beerstock.entity.Beer;
 import one.digitalinnovation.beerstock.exception.BeerAlreadyRegisteredException;
 import one.digitalinnovation.beerstock.exception.BeerNotFoundException;
 import one.digitalinnovation.beerstock.service.BeerService;
@@ -16,10 +17,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 
+import javax.print.attribute.standard.Media;
 import javax.swing.text.html.Option;
 import java.util.Collections;
 import java.util.Optional;
@@ -140,22 +143,36 @@ public class BeerControllerTest {
                 .andExpect(jsonPath("$[0].brand", is(beerDTO.getBrand())));
     }
 
+    @Test
+    void whenDELETEIsCalledWithAValidIdThenNoContentStatusIsReturned() throws Exception {
+        //given
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
 
+        //when
+        Mockito.doNothing().when(beerService).deleteById(beerDTO.getId());
 
+        //then
+        mockMvc.perform(MockMvcRequestBuilders
+                .delete(BEER_API_URL_PATH + "/" + beerDTO.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
 
+    @Test
+    void whenDELETEIsCalledWithAnInvalidIdThenNotFoundStatusIsReturned() throws Exception {
+        //given
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
 
+        //Lança exceção de BeerNotFound para testar quando não encontrar uma cerveja para deletar
+        //when
+        Mockito.doThrow(BeerNotFoundException.class).when(beerService).deleteById(beerDTO.getId());
 
-
-
-
-
-
-
-
-
-
-
-
+        //then
+        mockMvc.perform(MockMvcRequestBuilders
+                .delete(BEER_API_URL_PATH + "/" + beerDTO.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
 
 
 //    @Test

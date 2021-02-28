@@ -174,6 +174,19 @@ public class BeerServiceTest {
     }
 
 
+    @Test
+    void whenExclusionIsCalledWithAnInvalidIdThenAnExceptionShouldBeThrown() {
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer beer = beerMapper.toModel(beerDTO);
+
+        //when
+        when(beerRepository.findById(beer.getId())).thenReturn(Optional.empty());
+
+        //then
+        assertThrows(BeerNotFoundException.class, () -> beerService.deleteById(beer.getId()));
+    }
+
+
 //
 //    @Test
 //    void whenDecrementIsCalledThenDecrementBeerStock() throws BeerNotFoundException, BeerStockExceededException {
