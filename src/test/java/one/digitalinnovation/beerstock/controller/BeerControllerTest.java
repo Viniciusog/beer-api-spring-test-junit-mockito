@@ -73,6 +73,30 @@ public class BeerControllerTest {
                 .andExpect(jsonPath("$.type", is(beerDTO.getType().toString())));
     }
 
+    //Teste de inserção com POST, retorna exceção caso não tenha os campos obrigatórios
+    @Test
+    void whenPOSTIsCalledWithoutRequiredFieldThenAnErrorIsReturned() throws Exception {
+        //given
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        beerDTO.setBrand(null);
+
+        //A anotação @Valid na classe BeerController já verifica se os campos são válidos
+        //not null, etc
+
+        //then
+        mockMvc.perform(post(BEER_API_URL_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(beerDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.name", is(beerDTO.getName())))
+                .andExpect(jsonPath("$.brand", is(beerDTO.getBrand())))
+                .andExpect(jsonPath("$.type", is(beerDTO.getType().toString())));
+
+    }
+
+
+   
+
 //    @Test
 //    void whenPATCHIsCalledToIncrementGreatherThanMaxThenBadRequestStatusIsReturned() throws Exception {
 //        QuantityDTO quantityDTO = QuantityDTO.builder()

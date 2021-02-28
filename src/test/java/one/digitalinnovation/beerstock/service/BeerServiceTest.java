@@ -114,7 +114,7 @@ public class BeerServiceTest {
     //Teste para validar se a exceção BeerNotFound é mostrada quando o nome de uma
     //cerveja não está cadastrado
     @Test
-    void whenNoRegisteredBeerNameIsGivenThenThrownAnException() {
+    void whenSearchedBeerNameDoesNotExistThenAExceptionShouldBeThrown() {
         BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
         Beer beer = beerMapper.toModel(beerDTO);
 
