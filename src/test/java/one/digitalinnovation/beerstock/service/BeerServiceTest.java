@@ -11,6 +11,7 @@ import one.digitalinnovation.beerstock.mapper.BeerMapper;
 import one.digitalinnovation.beerstock.repository.BeerRepository;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,10 +30,7 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
@@ -153,6 +151,26 @@ public class BeerServiceTest {
 
         assertThat(foundBeers, is(empty()));
         assertTrue(foundBeers.size() == 0);
+    }
+
+
+    @Test
+    void whenExclusionIsCalledWithAValidIdThenABeerShouldBeDeleted() throws BeerNotFoundException {
+
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer beer = beerMapper.toModel(beerDTO);
+
+        //when
+        Mockito.when(beerRepository.findById(beer.getId())).thenReturn(Optional.of(beer));
+        doNothing().when(beerRepository).deleteById(beer.getId()); //faz nada pois é void
+
+        //then
+        beerService.deleteById(beer.getId());
+
+        //Verifica se deletou a cerveja com a passagem no método findById e deleteById
+        verify(beerRepository, times(1)).findById(beer.getId());
+        verify(beerRepository, times(1)).deleteById(beer.getId());
+
     }
 
 
