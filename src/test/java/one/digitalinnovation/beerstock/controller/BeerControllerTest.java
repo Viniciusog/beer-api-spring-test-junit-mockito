@@ -95,7 +95,22 @@ public class BeerControllerTest {
     }
 
 
-   
+    @Test
+    void whenGETIsCalledWithAValidBeerNameThenOkStatus() throws Exception {
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+
+        //when
+        Mockito.when(beerService.findByName(beerDTO.getName())).thenReturn(beerDTO);
+
+        //then
+        mockMvc.perform(get(BEER_API_URL_PATH + "/" + beerDTO.getName())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(beerDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is(beerDTO.getName())))
+                .andExpect(jsonPath("$.type", is(beerDTO.getType().toString())))
+                .andExpect(jsonPath("$.brand", is(beerDTO.getBrand())));
+    }
 
 //    @Test
 //    void whenPATCHIsCalledToIncrementGreatherThanMaxThenBadRequestStatusIsReturned() throws Exception {
