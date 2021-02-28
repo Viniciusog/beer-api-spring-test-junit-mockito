@@ -4,6 +4,7 @@ import one.digitalinnovation.beerstock.builder.BeerDTOBuilder;
 import one.digitalinnovation.beerstock.dto.BeerDTO;
 import one.digitalinnovation.beerstock.dto.QuantityDTO;
 import one.digitalinnovation.beerstock.exception.BeerAlreadyRegisteredException;
+import one.digitalinnovation.beerstock.exception.BeerNotFoundException;
 import one.digitalinnovation.beerstock.service.BeerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import static one.digitalinnovation.beerstock.utils.JsonConvertionUtils.asJsonString;
 import static org.hamcrest.core.Is.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,6 +44,7 @@ public class BeerControllerTest {
     @InjectMocks
     private BeerController beerController;
 
+    //Antes de cada teste
     @BeforeEach
     void setUp() {
         //fazer setup apenas para a classe beerControler
@@ -52,6 +55,7 @@ public class BeerControllerTest {
 
     }
 
+    //Teste de inserção com POST
     @Test
     void whenPOSTIsCalledThenABeerIsCreated() throws Exception {
         //given

@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.swing.text.html.Option;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -54,7 +55,7 @@ public class BeerServiceTest {
     @Test
     public void whenBeerInformedThenItShouldBeCreated() throws BeerAlreadyRegisteredException {
         //'Constrói' um BeerDTO criado para nós
-        BeerDTO beerDTO =  BeerDTOBuilder.builder().build().toBeerDTO();
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
         Beer expectedSavedBeer = beerMapper.toModel(beerDTO);
 
         //when
@@ -90,9 +91,41 @@ public class BeerServiceTest {
 
         //then
         //Valida se uma exceção de cerveja existente foi lançada quando tentou cadastrar uma cerveja já existente
-        assertThrows(BeerAlreadyRegisteredException.class, () ->   beerService.createBeer(beerDTO));
+        assertThrows(BeerAlreadyRegisteredException.class, () -> beerService.createBeer(beerDTO));
 
     }
+
+    //Valida retorno de cerveja ao pesquisar por nome
+    @Test
+    void whenValidBeerNameIsGivenThenReturnABeer() throws BeerNotFoundException {
+        BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer beer = beerMapper.toModel(expectedBeerDTO);
+
+        //when
+        Mockito.when(beerRepository.findByName(beer.getName())).thenReturn(Optional.of(beer));
+
+        //then
+        BeerDTO returnedBeer = beerService.findByName(beer.getName());
+
+        assertEquals(expectedBeerDTO, returnedBeer);
+
+    }
+
+    //Teste para validar se a exceção BeerNotFound é mostrada quando o nome de uma
+    //cerveja não está cadastrado
+    @Test
+    void whenNoRegisteredBeerNameIsGivenThenThrownAnException() {
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer beer = beerMapper.toModel(beerDTO);
+
+        //when
+        Mockito.when(beerRepository.findByName(beer.getName())).thenReturn(Optional.empty());
+
+        //then
+        assertThrows(BeerNotFoundException.class, () -> beerService.findByName(beer.getName()));
+    }
+
+
 //
 //    @Test
 //    void whenDecrementIsCalledThenDecrementBeerStock() throws BeerNotFoundException, BeerStockExceededException {
